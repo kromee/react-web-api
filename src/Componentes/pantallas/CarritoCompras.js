@@ -1,12 +1,19 @@
-import { Button, CardMedia, Container, Divider, Grid, Icon, IconButton, MenuItem, Paper, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from '@material-ui/core';
+import { Button, CardMedia, Container, Divider, Grid, Icon, IconButton, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from '@material-ui/core';
 import React from 'react';
 import { productoArray } from '../Data/dataPrueba';
 import useStyles from '../../theme/useStyles';
+import { useStateValue } from '../../contexto/store';
 
 
 
 const CarritoCompras = (props)=>{
-    const miArray = productoArray;
+
+
+    const [{sesionCarritoCompra}, dispatch]= useStateValue();
+    //console.log('sesionCarritoCompra', sesionCarritoCompra);
+
+
+    const miArray = sesionCarritoCompra? sesionCarritoCompra.items: [];
     let suma = 0;
     miArray.forEach(prod => {
         suma += prod.precio 
@@ -29,36 +36,29 @@ return (
             <TableContainer>
             <Table>
                 <TableBody>
-                    { miArray.map(producto => (
-                    <TableRow key={producto.key}>
+                    { miArray.map(item => (
+                    <TableRow key={item.id}>
                         <TableCell>
                             <CardMedia 
                             className={classes.imgProductoCC}
-                            image="https://media.geeksforgeeks.org/wp-content/cdn-uploads/gfg_200x200-min.png"
-                            title="Imagen en Carrito"
+                            image={item.imagen ? item.imagen : "https://media.geeksforgeeks.org/wp-content/cdn-uploads/gfg_200x200-min.png"}
+                            title={item.producto}
                             />
                         </TableCell>
                         <TableCell>
                             <Typography className={classes.text_detalle}>
-                                {producto.titulo}
+                                {item.producto}
                             </Typography>
                         </TableCell>
                         <TableCell>
                             <Typography className={classes.text_detalle}>
-                                ${producto.precio}
+                                ${item.precio}
                             </Typography>
                         </TableCell>
                         <TableCell>
-                            <TextField
-                            select
-                            variant="outlined"
-                            size="small">
-                                <MenuItem value={1}>1</MenuItem>
-                                <MenuItem value={2}>2</MenuItem>
-                                <MenuItem value={3}>3</MenuItem>
-                                <MenuItem value={4}>4</MenuItem>
-                                <MenuItem value={5}>5</MenuItem>                        
-                            </TextField>
+                        <Typography className={classes.text_detalle}>
+                                {item.cantidad}
+                            </Typography>
                         </TableCell>
                         <TableCell>
                             <IconButton>

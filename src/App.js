@@ -21,22 +21,32 @@ import EditarProducto from './Componentes/pantallas/admin/EditarProducto';
 import ListaPedidos from './Componentes/pantallas/admin/ListaPedidos';
 import { getUsuario } from "./actions/UsuarioAction";
 import { useStateValue } from "./contexto/store";
+import {v4 as uuidv4} from 'uuid';
+import {getCarritoCompra} from './actions/CarritoCompraAction';
+
 
 function App() {
 
-const [{sesionUsuario}, dispacth] = useStateValue();
+const [{sesionUsuario}, dispatch] = useStateValue();
 
 
 const [servidorRespuesta, setServidorRespuesta] = useState(false);
   
 
-useEffect (()=>{
-    if(!servidorRespuesta){
-    getUsuario(dispacth).then(response=>{
+useEffect (async()=>{
+
+  let carritoCompraId = window.localStorage.getItem('carrito');
+  if (!carritoCompraId){
+    carritoCompraId= uuidv4();
+    window.localStorage.setItem('carrito', carritoCompraId);
+  }
+
+  if(!servidorRespuesta){
+      await getUsuario(dispatch);
+      await getCarritoCompra (dispatch, carritoCompraId)
       setServidorRespuesta (true);
-      console.log('estado de la sesion', response);
-    })
-    }
+  }
+
   }, [servidorRespuesta])
 
 

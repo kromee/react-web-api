@@ -33,12 +33,13 @@ const Login = (props) => {
     const loginEventoUsuario = ()=>{
 
         loginUsuario(usuario, dispacth).then(response=>{
-            if (response.status==200){
+            console.log("Respuesta ", response)
+            if (response && response.status === 200){
                 window.localStorage.setItem('token', response.data.token);
                 console.log('Login exitoso',  response.data);
                 props.history.push('/');
             }else{
-                console.log('Credenciales incorrectas', response.data);
+                console.log('Credenciales incorrectas', response && response.data);
             }
         })
        /* const respuesta = accesoUsuario(usuario);

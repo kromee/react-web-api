@@ -7,7 +7,10 @@ instancia.isCancel = axios.isCancel;
 
 
 export const registrarUsuario = (usuario, dispacth) =>{
+ 
     return new Promise((resolve, rejet)=>{
+
+
         instancia.post("/api/Usuario/registrar", usuario).then (response =>{
 
             dispacth ({

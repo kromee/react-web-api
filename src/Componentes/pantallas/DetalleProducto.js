@@ -1,26 +1,85 @@
 import { Button, CardMedia, Container, Grid, MenuItem, Paper, Table, TableBody, 
     TableCell, TableContainer, TableRow, TextField, Typography } from '@material-ui/core';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import useStyles from '../../theme/useStyles';
+import {getProducto} from '../../actions/ProductoAction'
+
+import {addItem} from '../../actions/CarritoCompraAction';
+import { useStateValue } from '../../contexto/store';
+
 
 const DetalleProducto = (props) => {
-    const agregarCarrito = () => {
+
+
+    const [{sesionCarritoCompra}, dispatch] = useStateValue();
+
+
+    const [cantidad, setCantidad] = useState(1);
+
+    const [productoSeleccionado, setProductoSeleccionado] = useState({
+        id:0,
+        nombre:'',
+        descripcion:'',
+        stock:0,
+        marcaid:'0',
+        marcanombre:'',
+        categoriaId:0,
+        categoriaNombre:'',
+        precio:0.0,
+        imagen:''
+
+    });
+
+    useEffect(() => {
+        const id=props.match.params.id;
+ 
+        const getProductoAsync = async () => {
+         
+            const response = await getProducto(id);
+            setProductoSeleccionado(response.data);
+
+        }
+        getProductoAsync();
+
+    },[productoSeleccionado])
+
+
+    const agregarCarrito = async () => {
+
+        const item = {
+            id:productoSeleccionado.id,
+            producto: productoSeleccionado.nombre,
+            precio: productoSeleccionado.precio,
+            cantidad: cantidad,
+            imagen: productoSeleccionado.imagen,
+            marca: productoSeleccionado.marcanombre,
+            categoria: productoSeleccionado.categoriaNombre
+
+
+        };
+
+      await  addItem(sesionCarritoCompra, item, dispatch)
+
         props.history.push("/carrito");
     }
+
+    const handleChange = (event) => {
+        setCantidad(event.target.value);
+      };
 
     const classes = useStyles();
     return (
         <Container className={classes.containermt}>
         <Typography variant="h4" className={classes.text_title}>
-            ABRIGO VAXI
+            {productoSeleccionado.nombre}
         </Typography>
         <Grid container spacing={4}>
             <Grid item lg={8} md={8} xs={12}>
                 <Paper className={classes.PaperImg} variant="outlined" square>
                     <CardMedia
                     className={classes.mediaDetalle}
-                    image="https://media.geeksforgeeks.org/wp-content/cdn-uploads/gfg_200x200-min.png"
-                    title="Mi Producto"
+                    image= {productoSeleccionado.imagen?productoSeleccionado.imagen:"https://media.geeksforgeeks.org/wp-content/cdn-uploads/gfg_200x200-min.png"} 
+                    title={productoSeleccionado.descripcion}
                     />
                 </Paper>
             </Grid>
@@ -34,23 +93,26 @@ const DetalleProducto = (props) => {
                                     <Typography variant="subtitle2">Precio</Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Typography variant="subtitle2">$25.99</Typography>
+                                    <Typography variant="subtitle2">{productoSeleccionado.precio}</Typography>
                                 </TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>
                                     <Typography variant="subtitle2">Cantidad</Typography>
+                                  
                                 </TableCell>
                                 <TableCell>
-                                    <TextField
-                                    size="small"
-                                    select
-                                    variant="outlined"
-                                    >
-                                        <MenuItem value={1}>1</MenuItem>
-                                        <MenuItem value={2}>2</MenuItem>
-                                        <MenuItem value={3}>3</MenuItem>
-                                    </TextField>
+                                <TextField
+                                            id="cantidad-producto"
+                                            label=""
+                                            type="number"
+                                            value={cantidad}
+                                            onChange={event => setCantidad(event.target.value)}
+                                         
+                                            InputLabelProps={{
+                                                shrink: true
+                                            }}
+                                       />
                                 </TableCell>
                             </TableRow>
                             <TableRow>
@@ -73,16 +135,16 @@ const DetalleProducto = (props) => {
                 <Grid container spacing={2}>
                     <Grid item md={6}>
                         <Typography className={classes.text_detalle}>
-                            Precio: $25.99
+                            Precio: {productoSeleccionado.precio}
                         </Typography>
                         <Typography className={classes.text_detalle}>
-                            Unidades Disponibles: 15
+                            Unidades Disponibles: {productoSeleccionado.stock}
                         </Typography>
                         <Typography className={classes.text_detalle}>
-                            Marca: VAXI
+                            Marca: {productoSeleccionado.marcanombre}
                         </Typography>
                         <Typography className={classes.text_detalle}>
-                            Temporada: Invierno
+                            Temporada: {productoSeleccionado.categoriaNombre}
                         </Typography>
                     </Grid>
                     <Grid item md={6}>
@@ -90,9 +152,7 @@ const DetalleProducto = (props) => {
                             Descripcion: 
                         </Typography>
                         <Typography className={classes.text_detalle}>
-                            Abrigo vaxi talla M, de algodon puro, de color Negro con botones 
-                            y cierre, ideal para el invierno, con bolsillos al exterior e interior
-                            suave al tacto con la piel
+                           {productoSeleccionado.descripcion}
                         </Typography>
                     </Grid>
                 </Grid>     
