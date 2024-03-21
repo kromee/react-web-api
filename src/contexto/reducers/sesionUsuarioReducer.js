@@ -1,5 +1,6 @@
 export const initialState = {
     usuario :{
+        Id:'',
         nombre:'',
         apellido:'',
         email:'',

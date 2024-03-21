@@ -1,12 +1,49 @@
 import { Button, Container, Icon, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@material-ui/core';
-import React from 'react';
+import { Pagination } from '@material-ui/lab';
+import React,  {useEffect, useState} from 'react';
+import { getUsuarios } from '../../../actions/UsuarioAction';
 import useStyles from '../../../theme/useStyles';
+import {withRouter} from 'react-router-dom';
+
+
+
 
 const Usuarios = (props) => {
+    const [requestUsuarios, setRequestUsuarios] = useState({
+        pageIndex: 1,
+        pageSize: 3,
+        search: ''
+    });
+
+    const [paginadorUsuarios, setPaginadorUsuarios] = useState({
+        count: 0,
+        pageIndex: 0,
+        pageSize: 0,
+        PageCount: 0,
+        data: []
+    });
+
+    const handleChange = (event, value) => {
+        setRequestUsuarios( (anterior) => ({
+            ...anterior,
+            pageIndex: value
+        }));
+    }
+
+    useEffect(  () => {
+
+        const getListaUsuarios = async () => {
+            const response = await getUsuarios(requestUsuarios);
+            setPaginadorUsuarios(response.data);
+        }
+        
+        getListaUsuarios();
+    }, [requestUsuarios] )
+
+
     const classes = useStyles();
 
-    const editaUsuario = () => {
-        const id = "8eb6280c-4266-41c0-8b04-98f94038238a";
+    const editaUsuario = (id) => {
         props.history.push("/admin/usuario/" + id);
     }
 
@@ -15,7 +52,6 @@ const Usuarios = (props) => {
             <Typography variant="h4" className={classes.text_title}>
                 USUARIOS
             </Typography>
-            
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -23,62 +59,35 @@ const Usuarios = (props) => {
                             <TableCell>ID</TableCell>
                             <TableCell>USUARIO</TableCell>
                             <TableCell>EMAIL</TableCell>
-                            <TableCell>ADMIN</TableCell>
+                            <TableCell>USERNAME</TableCell>
                             <TableCell></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <TableRow>
-                            <TableCell>865517e3-9f12-4cec-99a8-fabd4d547b30</TableCell>
-                            <TableCell>John Peralta</TableCell>
-                            <TableCell>john@gmail.com</TableCell>
-                            <TableCell>
-                                <Icon className={classes.iconDelivered}>
-                                    check
-                                </Icon>
-                            </TableCell>
-                            <TableCell>
-                                <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={editaUsuario}>
-                                    <Icon>edit</Icon>
-                                </Button>
-                                <Button
-                                variant="contained"
-                                color="secondary">
-                                    <Icon>delete</Icon>
-                                </Button>
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>524fc099-6c60-40b9-8589-12a29858a0b7</TableCell>
-                            <TableCell>Nestor Arcila</TableCell>
-                            <TableCell>nestor@gmail.com</TableCell>
-                            <TableCell>
-                                <Icon className={classes.iconNotDelivered}>
-                                    clear
-                                </Icon>
-                            </TableCell>
-                            <TableCell>
-                                <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={editaUsuario}>
-                                    <Icon>edit</Icon>
-                                </Button>
-                                <Button
-                                variant="contained"
-                                color="secondary">
-                                    <Icon>delete</Icon>
-                                </Button>
-                            </TableCell>
-                        </TableRow>
+                    {
+                   paginadorUsuarios.data.map((usuario) => (
+        <TableRow key={usuario.id}>
+            <TableCell>{usuario.id}</TableCell>
+            <TableCell>{usuario.nombre + ' ' + usuario.apellido}</TableCell>
+            <TableCell>{usuario.email}</TableCell>
+            <TableCell>{usuario.username}</TableCell>
+            <TableCell>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => editaUsuario(usuario.id)}
+                >
+                    <Icon>edit</Icon>
+                </Button>
+            </TableCell>
+        </TableRow>
+    ))}
                     </TableBody>
                 </Table>
             </TableContainer>
+            <Pagination count={paginadorUsuarios.pageCount} page={paginadorUsuarios.pageIndex} onChange={handleChange} />
         </Container>
     );
 };
 
-export default Usuarios;
+export default withRouter(Usuarios);

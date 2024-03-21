@@ -1,11 +1,13 @@
 import React, { useState }  from "react";
-import { Link } from 'react-router-dom';
+import { Link , withRouter} from 'react-router-dom';
 import useStyles from "../../../theme/useStyles";
-import { Avatar, Button, Icon, ListItemIcon, ListItemText, Menu, MenuItem } from '@material-ui/core';
+import { Avatar, Button, Icon, ListItemIcon, ListItemText, Menu, MenuItem , ListItem} from '@material-ui/core';
 import { useStateValue } from "../../../contexto/store";
 
-const MenuCliente = () => {
+const MenuCliente = (props) => {
 
+    const imagenDefault = "./images/perfil.png";
+    
     const [{sesionUsuario}, dispacth] = useStateValue();
 
 
@@ -21,6 +23,19 @@ const MenuCliente = () => {
         setAnchorEl(null);
     }
 
+    const salirSesion=(e)=>{
+        e.preventDefault();
+        localStorage.removeItem("token");
+        dispacth({
+            typeof:"SALIR_SESION",
+            nuevoUsuario:null,
+            autenticado:false
+        });
+
+        props.history.push("/login");
+
+    }
+
     return (
         <>
             <Button color="inherit" className={classes.buttonIcon}>
@@ -34,10 +49,15 @@ const MenuCliente = () => {
                     <div className={classes.linkAppBarDesktop}>
                         <Avatar alt="mi imagen"
                         className={classes.avatarPerfilAppBar}
-                        src="./images/perfil.png"/> 
-                        {sesionUsuario ? 
-                            (sesionUsuario.autenticado ? 
-                            sesionUsuario.usuario.nombre + ' '+sesionUsuario.usuario.apellido : 'Sin sesión')
+                        src = {
+                            sesionUsuario
+                            ? (sesionUsuario.usuario.imagen ? sesionUsuario.usuario.imagen : imagenDefault)
+                            : imagenDefault
+                         }
+                        /> 
+                        {sesionUsuario 
+                        ? 
+                        (sesionUsuario.autenticado ?  sesionUsuario.usuario.nombre + ' '+sesionUsuario.usuario.apellido : 'Sin sesión')
                         : 'no session'}
                         <Icon> keyboard_arrow_down</Icon>
                     </div>
@@ -72,7 +92,13 @@ const MenuCliente = () => {
                                     <ListItemIcon className={classes.listItemIcon}> 
                                     <Icon>exit_to_app</Icon>
                                     </ListItemIcon>
-                                    <ListItemText>Cerrar sesion</ListItemText>
+                                    <ListItem 
+                                    button onClick={salirSesion}
+                                    >
+                                    <ListItemText >Cerrar sesion</ListItemText>
+
+                                    </ListItem>
+                                   
                                 </Link>
                             </MenuItem>
 
@@ -84,5 +110,5 @@ const MenuCliente = () => {
     )
 }
 
-export default MenuCliente;
+export default withRouter(MenuCliente) ;
 

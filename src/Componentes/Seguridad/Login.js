@@ -15,7 +15,7 @@ const clearUsuario = {
 
 const Login = (props) => {
     
-    const [{sesionUsuario}, dispacth] = useStateValue();
+    const [{sesionUsuario}, dispatch] = useStateValue();
     
     const [usuario, setUsuario] = useState({
         email:'',
@@ -32,14 +32,23 @@ const Login = (props) => {
 
     const loginEventoUsuario = ()=>{
 
-        loginUsuario(usuario, dispacth).then(response=>{
-            console.log("Respuesta ", response)
+        loginUsuario(usuario, dispatch).then(response=>{
+    
             if (response && response.status === 200){
                 window.localStorage.setItem('token', response.data.token);
-                console.log('Login exitoso',  response.data);
+                //console.log('Login exitoso',  response.data);
                 props.history.push('/');
             }else{
-                console.log('Credenciales incorrectas', response && response.data);
+                //console.log('Credenciales del usuario incorrectas', response && response.data);
+            
+                dispatch({
+                    type: "OPEN_SNACKBAR",
+                    openMensaje: {
+                      open: true,
+                      mensaje: "Datos de acceso incorrectos"
+                    }
+                    
+                  });
             }
         })
        /* const respuesta = accesoUsuario(usuario);

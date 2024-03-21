@@ -1,9 +1,18 @@
 import { Avatar, Collapse, Divider, Icon, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter} from 'react-router-dom';
 import useStyles from '../../../theme/useStyles';
 
+import { useStateValue } from "../../../contexto/store";
+
+
+
 const MenuMovil = (props) => {
+
+    const imagenDefault = "./images/perfil.png";
+
+    const [{sesionUsuario}, dispacth] = useStateValue();
+
 
     const [ openCliente, setOpenCliente] = useState(false);
     const [ openAdmin, setOpenAdmin] = useState(false);
@@ -16,6 +25,19 @@ const MenuMovil = (props) => {
         setOpenAdmin((prevOpen) => !prevOpen);
     }
 
+    const salirSesion=(e)=>{
+        e.preventDefault();
+        localStorage.removeItem("token");
+        dispacth({
+            typeof:"SALIR_SESION",
+            nuevoUsuario:null,
+            autenticado:false
+        });
+
+        props.history.push("/login");
+
+    }
+
     const classes = useStyles();
     return (
         <>
@@ -24,9 +46,19 @@ const MenuMovil = (props) => {
                     <Avatar 
                     alt="mi imagen"
                     className={classes.avatarPerfilAppBar}
-                    src="https://tottope.vteximg.com.br/arquivos/ids/167188-1000-1000/PILIGRAM-H-1810-V07_A.png?v=636723781789170000"
+                    src={
+                        sesionUsuario
+                        ? (sesionUsuario.usuario.imagen ? sesionUsuario.usuario.imagen : imagenDefault)
+                        : imagenDefault
+                    }
                     />
-                    <ListItemText>John Peralta</ListItemText>
+                    <ListItemText>
+                        {
+                            sesionUsuario
+                            ?(sesionUsuario.autenticado?sesionUsuario.usuario.nombre+' '+ sesionUsuario.usuario.apellido : '')
+                            :"No sesion"
+                        }
+                    </ListItemText>
                     <Icon>keyboard_arrow_down</Icon>
                 </div>
             </ListItem>
@@ -47,7 +79,12 @@ const MenuMovil = (props) => {
                             <ListItemIcon className={classes.listItemIcon}>
                                 <Icon>exit_to_app</Icon>
                             </ListItemIcon>
+                            <ListItem
+                            button onClick={salirSesion}
+                            >
                             <ListItemText>Cerrar Sesion</ListItemText>
+                            </ListItem>
+                           
                         </Link>
                     </ListItem>
                     <Divider />
@@ -111,4 +148,4 @@ const MenuMovil = (props) => {
 
 
 
-export default MenuMovil;
+export default withRouter(MenuMovil) ;
